@@ -20,7 +20,7 @@ def get_depth(base, path):
     return os.path.relpath(path, base).count(os.sep)
 
 for root, folders, filenames in os.walk(input_dir):
-    if max_depth is not None and get_depth(input_dir, root) >= max_depth:
+    if not max_depth and get_depth(input_dir, root) >= max_depth:
         folders.clear()
         continue
 

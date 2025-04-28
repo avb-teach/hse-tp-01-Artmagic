@@ -22,11 +22,11 @@ except FileExistsError:
 
 
 def current_depth(indir, current_path):
-    current_path.replace(indir, '')
-    return current_path.count('\\\\') + 1
+    current_path = current_path.replace(indir, '')
+    return current_path.count('/') + 1
 
 
-duplicates_count = defaultdict()
+duplicates_count = defaultdict(int)
 
 
 for info in os.walk(input_dir):
@@ -47,4 +47,4 @@ for info in os.walk(input_dir):
             name = f'{duplicates_count[file]}{file}'
         duplicates_count[file] += 1
 
-        shutil.copy(path + '\\\\' + file)
+        shutil.copy(path + '/' + file, output_dir + '/' + name)

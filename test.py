@@ -1,11 +1,10 @@
+import sys
 import os
 import shutil
+from collections import defaultdict
 
 
-for info in os.walk("./input_dir"):
 
-    files = info[2]
+for info in os.walk('input_dir'):
 
-    for file in files:
-
-        shutil.copy(file, f"./output_dir/{file}")
+    print(info)

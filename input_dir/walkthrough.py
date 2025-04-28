@@ -1,9 +1,7 @@
 import sys
 import os
-import shutil
 
-
-# name = sys.argv[0]
+name = sys.argv[0]
 input_dir = sys.argv[1]
 output_dir = sys.argv[2]
 
@@ -18,11 +16,9 @@ try:
 except FileExistsError:
     pass
 
-
-for info in os.walk("./input_dir"):
-
+for info in os.walk(input_dir):
+    path = info[0]
     files = info[2]
+    dirs = info[1]
 
-    for file in files:
-
-        shutil.copy(file, f"./output_dir/{file}")
+    

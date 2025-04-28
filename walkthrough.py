@@ -7,30 +7,32 @@ input_dir = sys.argv[1]
 output_dir = sys.argv[2]
 try:
     max_depth = int(sys.argv[3])
-except (IndexError, ValueError):
+except:
     max_depth = None
 
-os.makedirs(output_dir, exist_ok=True)
+try:
+    os.mkdir(output_dir)
+except FileExistsError:
+    pass
 
-name_counts = defaultdict(int)
+duplicates = defaultdict(int)
 
-def relative_depth(root, path):
-    return os.path.relpath(path, root).count(os.sep)
+def current_depth(indir, curr_path):
+    curr_path = curr_path.replace(indir, '')
+    return curr_path.count('/') + 1
 
-for current_root, dirs, files in os.walk(input_dir):
-    if max_depth is not None and relative_depth(input_dir, current_root) >= max_depth:
-        dirs[:] = []
+
+for path, dirs, files in os.walk(input_dir):
+    if max_depth is not None and current_depth(input_dir, path) >= max_depth:
+        dirs[:] = [] # позаимствовал из интернета, чтобы не удалялся изначальный dirs
         continue
 
     for file in files:
-        full_path = os.path.join(current_root, file)
-        base_name, ext = os.path.splitext(file)
-        count = name_counts[file]
+        count = duplicates[file]
         if count == 0:
-            new_name = file
+            name = file
         else:
-            new_name = f"{base_name}{count}{ext}"
-        name_counts[file] += 1
+            name = f"{count}{file}"
+        duplicates[file] += 1
 
-        destination = os.path.join(output_dir, new_name)
-        shutil.copy2(full_path, destination)
+        shutil.copy(path + '/' + file, output_dir + '/' + name)

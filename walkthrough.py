@@ -3,48 +3,34 @@ import os
 import shutil
 from collections import defaultdict
 
-
-# name = sys.argv[0]
 input_dir = sys.argv[1]
 output_dir = sys.argv[2]
-
 try:
-    if sys.argv[3] == "--max_depth":
-        max_depth = int(sys.argv[4])
-except:
-    max_depth = False
+    max_depth = int(sys.argv[3])
+except (IndexError, ValueError):
+    max_depth = None
 
+os.makedirs(output_dir, exist_ok=True)
 
-try:
-    os.mkdir(output_dir)
-except FileExistsError:
-    pass
+name_counts = defaultdict(int)
 
+def relative_depth(root, path):
+    return os.path.relpath(path, root).count(os.sep)
 
-def current_depth(indir, current_path):
-    current_path = current_path.replace(indir, '')
-    return current_path.count('/') + 1
-
-
-duplicates_count = defaultdict(int)
-
-
-for info in os.walk(input_dir):
-    path = info[0]
-    dirs = info[1]
-    files = info[2]
-
-    if max_depth and current_depth(input_dir, path) >= max_depth:
-        dirs[:] = [] # Позаимствовал, чтобы срез не
-        continue #     удалял весь dirs
+for current_root, dirs, files in os.walk(input_dir):
+    if max_depth is not None and relative_depth(input_dir, current_root) >= max_depth:
+        dirs[:] = []
+        continue
 
     for file in files:
-        # root_name, extension = file.split('.')
-
-        if duplicates_count[file] == 0:
-            name = file
+        full_path = os.path.join(current_root, file)
+        base_name, ext = os.path.splitext(file)
+        count = name_counts[file]
+        if count == 0:
+            new_name = file
         else:
-            name = f'{duplicates_count[file]}{file}'
-        duplicates_count[file] += 1
+            new_name = f"{base_name}{count}{ext}"
+        name_counts[file] += 1
 
-        shutil.copy(path + '/' + file, output_dir + '/' + name)
+        destination = os.path.join(output_dir, new_name)
+        shutil.copy2(full_path, destination)
